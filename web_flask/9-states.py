@@ -12,12 +12,8 @@ from models.amenity import Amenity
 from models.review import Review
 from flask import Flask, render_template
 app = Flask(__name__)
-
-
 classes = {"Amenity": Amenity, "City": City,
            "Place": Place, "Review": Review, "State": State, "User": User}
-
-
 @app.route('/states', strict_slashes=False)
 @app.route('/states/<id>', strict_slashes=False)
 def states_by_id(id=None):
@@ -30,12 +26,9 @@ def states_by_id(id=None):
     # ^ fetches states data from storage engine, then in line below,
     # those states are passed into the template
     return render_template('9-states.html', states=states)
-
-
 @app.teardown_appcontext
 def remove_SQLalc_session(exception):
     """ close storage when tear down is called """
     storage.close()
-
 if __name__ == '__main__':
  app.run(host='0.0.0.0', port=5000)  
