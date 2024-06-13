@@ -1,34 +1,45 @@
 #!/usr/bin/python3
-""" this module contains a script that starts a Flask web application
-    the web application must be listening on 0.0.0.0, port 5000
-    Routes: - /states_list """
-from models import *
-from models.base_model import BaseModel, Base
-from models.user import User
-from models.place import Place
+
+"""Starts a Flask web application"""
+
+from models import storage
 from models.state import State
-from models.city import City
-from models.amenity import Amenity
-from models.review import Review
-from flask import Flask, render_template
+from flask import Flask
+from flask import render_template
+
 app = Flask(__name__)
-classes = {"Amenity": Amenity, "City": City,
-           "Place": Place, "Review": Review, "State": State, "User": User}
+
+
 @app.route('/states', strict_slashes=False)
+def state_list():
+    """Comment"""
+    states = storage.all('State').values()
+    return render_template(
+        "9-states.html",
+        states=states,
+        condition="states_list")
+
+
 @app.route('/states/<id>', strict_slashes=False)
-def states_by_id(id=None):
-    """ display HTML page with list of states """
-    all_states = storage.all(State)
-    if id:
-        states = all_states.get('State.{}'.format(id))
-    else:
-        states = all_states.values()
-    # ^ fetches states data from storage engine, then in line below,
-    # those states are passed into the template
-    return render_template('9-states.html', states=states)
+def states_by_id(id):
+    """Comment"""
+    all_states = storage.all('State')
+    key = "State.{}".format(id)
+    try:
+        state = all_states[key]
+        return render_template(
+            '9-states.html',
+            state=state,
+            condition="state_id")
+    except:
+        return render_template('9-states.html', condition="not_found")
+
+
 @app.teardown_appcontext
-def remove_SQLalc_session(exception):
-    """ close storage when tear down is called """
+def teardown(self):
+    """Removes the current SQLAlchemy Session"""
     storage.close()
+
+
 if __name__ == '__main__':
- app.run(host='0.0.0.0', port=5000)  
+    app.run(host='0.0.0.0')
